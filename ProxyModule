@@ -1,0 +1,44 @@
+
+local proxyModule = {}
+
+
+function proxyModule.CreateProxy(Source)
+    local proxyTable = {}
+
+    local mt = {
+        __index = function(_, key)
+            print("[PROXY] Accessing key: " .. tostring(key))
+            return Source[key]
+        end,
+        __newindex = function(_, key, value)
+            print("[PROXY] Setting key: " .. tostring(key) .. " = " .. tostring(value))
+            Source[key] = value
+        end
+    }
+    
+    
+
+    setmetatable(proxyTable, mt)
+    return proxyTable
+end
+
+
+function proxyModule.CreateReadOnlyProxy(Source)
+    local proxyTable = {}
+
+    local mt = {
+        __index = function(_, key)
+            print("[READ-ONLY] Accessing key: " .. tostring(key))
+            return Source[key]
+        end,
+        __newindex = function(_, key, value)
+            warn("[READ-ONLY] Attempted to write key: " .. tostring(key) .. " with value: " .. tostring(value))
+            error("Cannot write to read-only table", 2)
+        end
+    }
+
+    setmetatable(proxyTable, mt)
+    return proxyTable
+end
+
+return proxyModule
